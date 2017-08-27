@@ -49,7 +49,7 @@ var spotifySong = function(song){
 	};
 	//Call Spotify API and log song data
 	client.search(params, function(error, data) {
-  	if (errror) {
+  	if (error) {
   		console.log(error);
     	return;
   	}
@@ -88,7 +88,10 @@ var doing = function(){
 			return;
 		}
 		var argArray = data.split(",");
-		console.log(argArray[0]);
-		console.log(argArray[1]);
+		decideWhatToDo(argArray[0], argArray[1]);
 	});
 }
+
+
+
+
