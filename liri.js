@@ -23,14 +23,14 @@ var logTweets = function(userName){
 		count: 20};
 	//Call Twitter API to pull last 20 tweets for userName, log to console
 	client.get('statuses/user_timeline', params, function(error, tweets, response) {
-  	if (!error) {
-  		for(var x in tweets){
-    		console.log(tweets[x].text);
-  			console.log("**********");
-  		};
-  	}else{
+  	if (error) {
   		console.log(error);
+  		return;
   	}
+  	for(var x in tweets){
+   		console.log(tweets[x].text);
+ 			console.log("**********");
+ 		}; 
 	});
 };
 
@@ -48,11 +48,11 @@ var spotifySong = function(song){
 		limit: 1
 	};
 	//Call Spotify API and log song data
-	client.search(params, function(err, data) {
-  	if (err) {
-    	return console.log('Error occurred: ' + err);
+	client.search(params, function(error, data) {
+  	if (errror) {
+  		console.log(error);
+    	return;
   	}
-//		console.log(JSON.stringify(data, null, 2)); 
 		console.log("Title: " + data.tracks.items[0].name);
 		console.log("Artist: " + data.tracks.items[0].artists[0].name);
 		console.log("Link: " + data.tracks.items[0].external_urls.spotify);
@@ -60,5 +60,35 @@ var spotifySong = function(song){
 	});
 };
 
+var omdbMovie = function(movie){
+	var key = keys.omdbKeys.api_key;
+	var movieUri = encodeURI(movie);
+	var url = "http://www.omdbapi.com/?apikey=" + key + "&plot=short&t=" + movieUri;
+	request(url, function (error, response, body) {
+		if(error){
+  		console.log(error); 
+  		return;
+		}
+		bodyJson = JSON.parse(body);
+  	console.log("Title: " + bodyJson.Title);
+  	console.log("Year: " + bodyJson.Year);
+  	for(var i = 0; i < bodyJson.Ratings.length; i++){
+  		console.log(bodyJson.Ratings[i].Source + " Rating: " + bodyJson.Ratings[i].Value);
+  	};
+  	console.log("Country: " + bodyJson.Country);
+  	console.log("Plot: " + bodyJson.Plot);
+  	console.log("Actors: " + bodyJson.Actors);
+	});
+};
 
-
+var doing = function(){
+	fs.readFile("./random.txt", "utf8", (error, data) => {
+		if(error){
+			console.log(error);
+			return;
+		}
+		var argArray = data.split(",");
+		console.log(argArray[0]);
+		console.log(argArray[1]);
+	});
+}
