@@ -23,7 +23,9 @@ var logTweets = function(userName){
 	//Build parameters for REST API query
 	var params = {
 		screen_name: userName || '1jean2nat',
-		count: 20};
+		count: 20
+	};
+	writeToLog("my-tweets, " + params.screen_name);
 	//Call Twitter API to pull last 20 tweets for userName, log to console
 	client.get('statuses/user_timeline', params, function(error, tweets, response) {
   	if (error) {
@@ -32,7 +34,9 @@ var logTweets = function(userName){
   	}
   	for(var x in tweets){
    		console.log(tweets[x].text);
+   		writeToLog(tweets[x].text);
  			console.log("**********");
+ 			writeToLog("**********");
  		}; 
 	});
 };
@@ -50,6 +54,7 @@ var spotifySong = function(song){
 		query: song || "The Sign (Ace of Base)",
 		limit: 1
 	};
+	writeToLog("spotify-this-song, " + params.query);
 	//Call Spotify API and log song data
 	client.search(params, function(error, data) {
   	if (error) {
@@ -57,9 +62,13 @@ var spotifySong = function(song){
     	return;
   	}
 		console.log("Title: " + data.tracks.items[0].name);
+		writeToLog("Title: " + data.tracks.items[0].name);
 		console.log("Artist: " + data.tracks.items[0].artists[0].name);
+		writeToLog("Artist: " + data.tracks.items[0].artists[0].name);
 		console.log("Link: " + data.tracks.items[0].external_urls.spotify);
+		writeToLog("Link: " + data.tracks.items[0].external_urls.spotify);
 		console.log("Album: " + data.tracks.items[0].album.name);
+		writeToLog("Link: " + data.tracks.items[0].external_urls.spotify);
 	});
 };
 
@@ -67,6 +76,7 @@ var omdbMovie = function(movie){
 	var key = keys.omdbKeys.api_key;
 	var movieUri = encodeURI(movie) || "Mr%20Nobody";
 	var url = "http://www.omdbapi.com/?apikey=" + key + "&plot=short&t=" + movieUri;
+	writeToLog("movie-this, " + movieUri);
 	request(url, function (error, response, body) {
 		if(error){
   		console.log(error); 
@@ -74,13 +84,19 @@ var omdbMovie = function(movie){
 		}
 		bodyJson = JSON.parse(body);
   	console.log("Title: " + bodyJson.Title);
+  	writeToLog("Title: " + bodyJson.Title);
   	console.log("Year: " + bodyJson.Year);
+  	writeToLog("Title: " + bodyJson.Title);
   	for(var i = 0; i < bodyJson.Ratings.length; i++){
   		console.log(bodyJson.Ratings[i].Source + " Rating: " + bodyJson.Ratings[i].Value);
+  		writeToLog(bodyJson.Ratings[i].Source + " Rating: " + bodyJson.Ratings[i].Value);
   	};
   	console.log("Country: " + bodyJson.Country);
+  	writeToLog("Country: " + bodyJson.Country);
   	console.log("Plot: " + bodyJson.Plot);
+  	writeToLog("Plot: " + bodyJson.Plot);
   	console.log("Actors: " + bodyJson.Actors);
+  	writeToLog("Actors: " + bodyJson.Actors);
 	});
 };
 
@@ -91,6 +107,7 @@ var doing = function(){
 			return;
 		}
 		var argArray = data.split(",");
+		writeToLog("do-what-it-says");
 		decideWhatToDo(argArray[0], argArray[1]);
 	});
 }
@@ -165,6 +182,16 @@ var parseArgs = function(){
 		argument = argument + args[i] + " ";
 	};
 	return argument;
+};
+
+var writeToLog = function(data){
+	var formattedData = "\n" + data
+	fs.appendFile("./log.txt", formattedData, (error) => {
+		if(error){
+			console.log(error);
+			return;
+		}
+	});
 };
 
 decideWhatToDo(args[2], parseArgs());
