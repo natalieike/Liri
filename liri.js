@@ -8,6 +8,9 @@ var fs = require("fs");
 //Link to API keys and authentication tokens
 var keys = require("./keys.js");
 
+//Process Arguments
+var args = process.argv;
+
 //Logs out the most recent tweets from a userName (Default is @1jean2nat)
 var logTweets = function(userName){
 	//Instantiate Twitter with Twitter authentication tokens
@@ -44,7 +47,7 @@ var spotifySong = function(song){
 	//Build Parameters
 	var params = {
 		type: "track",
-		query: song,
+		query: song || "The Sign (Ace of Base)",
 		limit: 1
 	};
 	//Call Spotify API and log song data
@@ -62,7 +65,7 @@ var spotifySong = function(song){
 
 var omdbMovie = function(movie){
 	var key = keys.omdbKeys.api_key;
-	var movieUri = encodeURI(movie);
+	var movieUri = encodeURI(movie) || "Mr%20Nobody";
 	var url = "http://www.omdbapi.com/?apikey=" + key + "&plot=short&t=" + movieUri;
 	request(url, function (error, response, body) {
 		if(error){
@@ -92,6 +95,76 @@ var doing = function(){
 	});
 }
 
+var decideWhatToDo = function(command, argument){
+	switch(command){
+		case "my-tweets":
+			logTweets(argument);
+			break;
+		case "spotify-this-song":
+			spotifySong(argument);
+			break;
+		case "movie-this":
+			omdbMovie(argument);
+			break;
+		case "do-what-it-says":
+			doing();
+			break;
+		default:
+			promptForCommand();
+			break;
+	}
+};
 
+var promptForCommand = function(){
+	inquirer.prompt([
+		{
+			type: "list",
+			message: "What do you want to do?",
+			choices: ["my-tweets", "spotify-this-song", "movie-this", "do-what-it-says", "exit"],
+			name: "command"
+		}
+	]).then(function(response){
+		if(response.command === "exit"){
+			return;
+		}else if (response.command != "do-what-it-says"){
+			promptForArg(response.command);
+		}
+		else{
+			decideWhatToDo(response.command);
+		}
+	});
+};
 
+var promptForArg = function(command){
+	if(command === "my-tweets"){
+		inquirer.prompt([
+			{
+				type: "input",
+				message: "Whose tweets do you want to list?",
+				name: "input"
+			}
+		]).then(function(response){
+			decideWhatToDo(command, response.input);
+		});
+	}else{
+		inquirer.prompt([
+			{
+				type: "input",
+				message: "What do you want to search for?",
+				name: "input"
+			}
+		]).then(function(response){
+			decideWhatToDo(command, response.input);
+		});
+	}
+};
 
+var parseArgs = function(){
+	var argument = "";
+	for (var i = 3; i < args.length; i++){
+		argument = argument + args[i] + " ";
+	};
+	return argument;
+};
+
+decideWhatToDo(args[2], parseArgs());
